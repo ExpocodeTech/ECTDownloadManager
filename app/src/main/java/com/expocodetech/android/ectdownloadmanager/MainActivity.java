@@ -11,6 +11,7 @@ import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.util.IllegalFormatCodePointException;
 
@@ -48,7 +49,10 @@ public class MainActivity extends AppCompatActivity {
             //Creamos un IntentFilter para que nuestro DownloadManagerReceiver solo cuando
             // el usuario haya hecho click en la notificación que el DownloadManage ha desplegado
             // por nosotros
-            IntentFilter intentFilter = new IntentFilter(DownloadManager.ACTION_NOTIFICATION_CLICKED);
+            IntentFilter intentFilter = new IntentFilter();
+            //Agregamos la acción ACTION_DOWNLOAD_COMPLETE para que se nos notifique cuando haya
+            // culminado al descarga del fichero
+            intentFilter.addAction(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
             mReceiver = new DownloadManagerReceiver();
             //Registramos el DownloadManagerReceiver
             registerReceiver(mReceiver, intentFilter);
@@ -72,9 +76,9 @@ public class MainActivity extends AppCompatActivity {
         //Instanciamos una petición de descarga de fichero
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
         //Seteamos una descripción para la notificación
-        request.setDescription("El fichero se ha descargado completamente");
+        request.setDescription(getString(R.string.notif_Description));
         //Seteamos un título para la notificación
-        request.setTitle("ECTDownloadManager");
+        request.setTitle(getString(R.string.notif_title));
         //Permitimos que el fichero a descargar sea escaneado por el MediaScanner
         request.allowScanningByMediaScanner();
         //Indicamos en la petición cuando queremos ahcer visible la Notificación
@@ -92,8 +96,8 @@ public class MainActivity extends AppCompatActivity {
             //Este metodo se disparara cuando el usuario haga click sobre la notifiación que el
             // DownloadManager despliega por nosotros despues de haber culminado la descarga del fichero
             Log.d(TAG, "DownloadManagerReceiver onReceive");
-            if (intent.getAction().equalsIgnoreCase(DownloadManager.ACTION_NOTIFICATION_CLICKED)){
-
+            if (intent.getAction().equalsIgnoreCase(DownloadManager.ACTION_DOWNLOAD_COMPLETE)){
+                Toast.makeText(MainActivity.this, getString(R.string.toast_downloadComplete), Toast.LENGTH_SHORT).show();
             }
         }
     }
