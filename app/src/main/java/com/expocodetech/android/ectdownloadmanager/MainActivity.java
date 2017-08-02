@@ -11,6 +11,8 @@ import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import java.util.IllegalFormatCodePointException;
@@ -18,29 +20,32 @@ import java.util.IllegalFormatCodePointException;
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getName();
     private static final String FILE_URL = "https://expocodetech.com/apps/downloads/fichero.txt";
-    private static final String FILE_NAME = "fichero.txt";
+    private static final String FILE_NAME = "ficheroDescargado.txt";
 
+    private Button btnDownload;
     private DownloadManagerReceiver mReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        btnDownload = (Button) findViewById(R.id.btnDownload);
+        btnDownload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                downloadBigFile(FILE_URL, FILE_NAME);
+            }
+        });
 
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        if (isDownloadManagerAvailable(this)) {
-            registerUnregisterBroadcastReceiver(false);
-            downloadBigFile(FILE_URL, FILE_NAME);
-        }
+        registerUnregisterBroadcastReceiver(false);
     }
 
     private void registerUnregisterBroadcastReceiver(boolean unregister) {
-        if (!isDownloadManagerAvailable(this))
-            return;
         if (unregister) {
             //Desregistramos el DownloadManagerReceiver
             if (mReceiver != null)
@@ -65,13 +70,6 @@ public class MainActivity extends AppCompatActivity {
         super.onStop();
     }
 
-    public static boolean isDownloadManagerAvailable(Context context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-            return true;
-        }
-        return false;
-    }
-
     public void downloadBigFile(String url, String fileName){
         //Instanciamos una petición de descarga de fichero
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
@@ -81,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
         request.setTitle(getString(R.string.notif_title));
         //Permitimos que el fichero a descargar sea escaneado por el MediaScanner
         request.allowScanningByMediaScanner();
-        //Indicamos en la petición cuando queremos ahcer visible la Notificación
+        //Indicamos en la petición cuando queremos hacer visible la Notificación
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
         //Le decimos
         request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
